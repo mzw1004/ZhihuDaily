@@ -9,6 +9,7 @@ import android.view.KeyEvent;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.mzw.imageloader.ImageLoader;
 import com.mzw.zhihudaily.ApiClient;
 import com.mzw.zhihudaily.ApiService;
 import com.mzw.zhihudaily.App;
@@ -51,7 +52,9 @@ public class SplashActivity extends BaseActivity {
             public void onResponse(Response<StartImage> response, Retrofit retrofit) {
                 L.d(TAG, response.body().getImgUrl());
                 mTextView.setText(response.body().getText());
-                Picasso.with(App.getContext()).load(response.body().getImgUrl()).into(mImageView);
+//                Picasso.with(App.getContext()).load(response.body().getImgUrl()).into(mImageView);
+                ImageLoader imageLoader = ImageLoader.build(SplashActivity.this);
+                imageLoader.bindBitmap(response.body().getImgUrl(), mImageView, mImageView.getWidth(), mImageView.getHeight());
             }
 
             @Override

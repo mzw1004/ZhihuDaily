@@ -12,4 +12,7 @@ public interface ApiService {
 
     @GET("start-image/1080*1776")
     Call<StartImage> startImage();
+
+    @GET("news/latest")
+    Call<String> getList();
 }
