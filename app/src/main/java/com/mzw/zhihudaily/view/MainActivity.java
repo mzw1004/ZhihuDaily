@@ -14,12 +14,11 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import retrofit.Callback;
-import retrofit.Response;
-import retrofit.Retrofit;
 import rx.Observer;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 public class MainActivity extends BaseActivity {
     private static final String TAG = L.makeLogTag(MainActivity.class);
@@ -35,13 +34,14 @@ public class MainActivity extends BaseActivity {
 
         setSupportActionBar(mToolbar);
         mZhihuService.getLatest()
+                .subscribeOn(Schedulers.io())
                 .map(new Func1<Latest, List<Story>>() {
                     @Override
                     public List<Story> call(Latest latest) {
                         return latest.stories;
                     }
                 })
-                .subscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<List<Story>>() {
                     @Override
                     public void onCompleted() {
@@ -53,7 +53,7 @@ public class MainActivity extends BaseActivity {
 
                     @Override
                     public void onNext(List<Story> stories) {
-                        Toast.makeText(MainActivity.this, stories.size(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, stories.get(0).title, Toast.LENGTH_SHORT).show();
                     }
                 });
     }

@@ -6,9 +6,9 @@ import android.animation.PropertyValuesHolder;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mzw.zhihudaily.App;
 import com.mzw.zhihudaily.R;
@@ -19,10 +19,9 @@ import com.squareup.picasso.Picasso;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.Response;
-import retrofit.Retrofit;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by M on 2015/11/10.
@@ -46,19 +45,25 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void loadImage() {
-        final Call<StartImage> imageCall = mZhihuService.startImage();
-        imageCall.enqueue(new Callback<StartImage>() {
-            @Override
-            public void onResponse(Response<StartImage> response, Retrofit retrofit) {
-                mTextView.setText(response.body().author);
-                Picasso.with(App.getContext()).load(response.body().imageUrl).into(mImageView);
-            }
+        mZhihuService.startImage()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<StartImage>() {
+                    @Override
+                    public void onCompleted() {
+                    }
 
-            @Override
-            public void onFailure(Throwable t) {
-                L.e(TAG, t, "failure");
-            }
-        });
+                    @Override
+                    public void onError(Throwable e) {
+                        Toast.makeText(SplashActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onNext(StartImage startImage) {
+                        mTextView.setText(startImage.author);
+                        Picasso.with(App.getContext()).load(startImage.imageUrl).into(mImageView);
+                    }
+                });
     }
 
     private void startAnimation() {
