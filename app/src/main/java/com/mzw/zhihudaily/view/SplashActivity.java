@@ -6,18 +6,19 @@ import android.animation.PropertyValuesHolder;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.mzw.imageloader.ImageLoader;
-import com.mzw.zhihudaily.ApiClient;
-import com.mzw.zhihudaily.ApiService;
 import com.mzw.zhihudaily.App;
 import com.mzw.zhihudaily.R;
 import com.mzw.zhihudaily.bean.StartImage;
 import com.mzw.zhihudaily.util.L;
+import com.mzw.zhihudaily.view.base.BaseActivity;
 import com.squareup.picasso.Picasso;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
@@ -29,32 +30,28 @@ import retrofit.Retrofit;
 public class SplashActivity extends BaseActivity {
     private static final String TAG = L.makeLogTag(SplashActivity.class);
 
-    private ImageView mImageView;
-    private TextView mTextView;
+    @Bind(R.id.iv_splash)
+    ImageView mImageView;
+    @Bind(R.id.tv_splash)
+    TextView mTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-
-        mImageView = (ImageView) findViewById(R.id.iv_splash);
-        mTextView = (TextView) findViewById(R.id.tv_splash);
+        ButterKnife.bind(this);
 
         loadImage();
         startAnimation();
     }
 
     private void loadImage() {
-        ApiService service = ApiClient.getApiService();
-        final Call<StartImage> imageCall = service.startImage();
+        final Call<StartImage> imageCall = mZhihuService.startImage();
         imageCall.enqueue(new Callback<StartImage>() {
             @Override
             public void onResponse(Response<StartImage> response, Retrofit retrofit) {
-                L.d(TAG, response.body().getImgUrl());
-                mTextView.setText(response.body().getText());
-//                Picasso.with(App.getContext()).load(response.body().getImgUrl()).into(mImageView);
-                ImageLoader imageLoader = ImageLoader.build(SplashActivity.this);
-                imageLoader.bindBitmap(response.body().getImgUrl(), mImageView, mImageView.getWidth(), mImageView.getHeight());
+                mTextView.setText(response.body().author);
+                Picasso.with(App.getContext()).load(response.body().imageUrl).into(mImageView);
             }
 
             @Override
@@ -100,5 +97,11 @@ public class SplashActivity extends BaseActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         int action = event.getAction();
         return !(action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_BACK) && super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ButterKnife.unbind(this);
     }
 }
