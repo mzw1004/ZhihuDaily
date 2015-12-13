@@ -1,6 +1,8 @@
 package com.mzw.zhihudaily.view;
 
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
 
@@ -8,6 +10,7 @@ import com.mzw.zhihudaily.R;
 import com.mzw.zhihudaily.bean.Latest;
 import com.mzw.zhihudaily.bean.Story;
 import com.mzw.zhihudaily.util.L;
+import com.mzw.zhihudaily.view.adapter.MainAdapter;
 import com.mzw.zhihudaily.view.base.BaseActivity;
 
 import java.util.List;
@@ -15,7 +18,6 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import rx.Observer;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
@@ -25,6 +27,10 @@ public class MainActivity extends BaseActivity {
 
     @Bind(R.id.toolbar)
     Toolbar mToolbar;
+    @Bind(R.id.recycler_view)
+    RecyclerView mRecyclerView;
+
+    MainAdapter mMainAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +39,13 @@ public class MainActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         setSupportActionBar(mToolbar);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.addOnScrollListener(getOnScrollListener());
+
+        loadStories();
+    }
+
+    private void loadStories() {
         mZhihuService.getLatest()
                 .subscribeOn(Schedulers.io())
                 .map(new Func1<Latest, List<Story>>() {
@@ -53,9 +66,29 @@ public class MainActivity extends BaseActivity {
 
                     @Override
                     public void onNext(List<Story> stories) {
-                        Toast.makeText(MainActivity.this, stories.get(0).title, Toast.LENGTH_SHORT).show();
+                        mMainAdapter = new MainAdapter(stories);
+                        mRecyclerView.setAdapter(mMainAdapter);
                     }
                 });
+    }
+
+    private RecyclerView.OnScrollListener getOnScrollListener() {
+        return new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    mMainAdapter.setViewIdle(true);
+                    Toast.makeText(MainActivity.this, "is idle", Toast.LENGTH_SHORT).show();
+                } else {
+                    mMainAdapter.setViewIdle(false);
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        };
     }
 
     @Override

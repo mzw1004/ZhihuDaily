@@ -3,6 +3,7 @@ package com.mzw.zhihudaily;
 import android.app.Application;
 import android.content.Context;
 
+import com.facebook.stetho.Stetho;
 import com.mzw.zhihudaily.util.L;
 
 /**
@@ -17,6 +18,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         sContext = getApplicationContext();
+        Stetho.initializeWithDefaults(this);
     }
 
     public static Context getContext() {

@@ -1,7 +1,11 @@
 package com.mzw.zhihudaily.api;
 
+import com.facebook.stetho.okhttp.StethoInterceptor;
+import com.mzw.zhihudaily.App;
+import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import retrofit.GsonConverterFactory;
@@ -16,9 +20,17 @@ public class ZhihuRetrofit {
     private ZhihuService mService;
     private OkHttpClient mHttpClient;
 
+    private static final int HTTP_RESPONSE_DISK_CACHE_MAX_SIZE = 10 * 1024 * 1024;
+
     private ZhihuRetrofit() {
         mHttpClient = new OkHttpClient();
+        mHttpClient.networkInterceptors().add(new StethoInterceptor());
         mHttpClient.setReadTimeout(12, TimeUnit.SECONDS);
+        File baseDir = App.getContext().getCacheDir();
+        if (baseDir != null) {
+            File cacheFile = new File(baseDir, "HttpResponseCache");
+            mHttpClient.setCache(new Cache(cacheFile, HTTP_RESPONSE_DISK_CACHE_MAX_SIZE));
+        }
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://news-at.zhihu.com/api/4/")
