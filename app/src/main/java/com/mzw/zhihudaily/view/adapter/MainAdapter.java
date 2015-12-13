@@ -29,6 +29,16 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
         mStoryList = new ArrayList<>(stories);
     }
 
+    public OnItemClickListener itemClickListener;
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        itemClickListener = listener;
+    }
+
+    public interface OnItemClickListener {
+        void onItemClicked(View view, int position);
+    }
+
     @Override
     public MainViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_main, parent, false);
@@ -63,7 +73,12 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
         }
     }
 
-    public static class MainViewHolder extends RecyclerView.ViewHolder {
+    public Story getStory(int position) {
+        return mStoryList.get(position);
+    }
+
+    public class MainViewHolder extends RecyclerView.ViewHolder
+            implements View.OnClickListener {
         ImageView imageView;
         TextView textView;
 
@@ -71,6 +86,14 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
             super(itemView);
             imageView = (ImageView) itemView.findViewById(R.id.iv_main);
             textView = (TextView) itemView.findViewById(R.id.tv_main);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (itemClickListener != null) {
+                itemClickListener.onItemClicked(v, getLayoutPosition());
+            }
         }
     }
 }

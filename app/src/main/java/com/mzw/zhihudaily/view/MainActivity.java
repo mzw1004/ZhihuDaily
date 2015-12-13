@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 import android.widget.Toast;
 
 import com.mzw.zhihudaily.R;
@@ -67,9 +68,14 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onNext(List<Story> stories) {
                         mMainAdapter = new MainAdapter(stories);
+                        mMainAdapter.setOnItemClickListener(getOnItemClickListener());
                         mRecyclerView.setAdapter(mMainAdapter);
                     }
                 });
+    }
+
+    private void gotoContent(long id) {
+        ContentViewerActivity.actionStart(this, id);
     }
 
     private RecyclerView.OnScrollListener getOnScrollListener() {
@@ -78,7 +84,6 @@ public class MainActivity extends BaseActivity {
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     mMainAdapter.setViewIdle(true);
-                    Toast.makeText(MainActivity.this, "is idle", Toast.LENGTH_SHORT).show();
                 } else {
                     mMainAdapter.setViewIdle(false);
                 }
@@ -87,6 +92,16 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
+            }
+        };
+    }
+
+    private MainAdapter.OnItemClickListener getOnItemClickListener() {
+        return new MainAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClicked(View view, int position) {
+                Story story = mMainAdapter.getStory(position);
+                gotoContent(story.id);
             }
         };
     }
