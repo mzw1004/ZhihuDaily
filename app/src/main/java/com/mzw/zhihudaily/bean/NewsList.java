@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Created by M on 2015/12/7.
  */
-public class Latest {
+public class NewsList {
 
     @SerializedName("date")
     public String date;

@@ -4,15 +4,18 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.mzw.zhihudaily.R;
-import com.mzw.zhihudaily.bean.Latest;
+import com.mzw.zhihudaily.bean.NewsList;
 import com.mzw.zhihudaily.bean.Story;
+import com.mzw.zhihudaily.util.DateHelper;
 import com.mzw.zhihudaily.util.L;
 import com.mzw.zhihudaily.view.adapter.MainAdapter;
 import com.mzw.zhihudaily.view.base.BaseActivity;
+import com.mzw.zhihudaily.view.custom.EndlessOnScrollListener;
 
 import java.util.List;
 
@@ -31,7 +34,10 @@ public class MainActivity extends BaseActivity {
     @Bind(R.id.recycler_view)
     RecyclerView mRecyclerView;
 
-    MainAdapter mMainAdapter;
+    private MainAdapter mMainAdapter;
+    private LinearLayoutManager mLayoutManager;
+
+    private int mDaysBefore = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,19 +46,36 @@ public class MainActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         setSupportActionBar(mToolbar);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.addOnScrollListener(getOnScrollListener());
 
-        loadStories();
+        loadLatest();
     }
 
-    private void loadStories() {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                loadLatest();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void loadLatest() {
         mZhihuService.getLatest()
                 .subscribeOn(Schedulers.io())
-                .map(new Func1<Latest, List<Story>>() {
+                .map(new Func1<NewsList, List<Story>>() {
                     @Override
-                    public List<Story> call(Latest latest) {
-                        return latest.stories;
+                    public List<Story> call(NewsList newsList) {
+                        return newsList.stories;
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())
@@ -74,12 +97,41 @@ public class MainActivity extends BaseActivity {
                 });
     }
 
+    private void loadBefore(int days) {
+        mZhihuService.getBefore(DateHelper.getDatebeforeToday(days))
+                .subscribeOn(Schedulers.io())
+                .map(new Func1<NewsList, List<Story>>() {
+                    @Override
+                    public List<Story> call(NewsList newsList) {
+                        return newsList.stories;
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<Story>>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+
+                    @Override
+                    public void onNext(List<Story> stories) {
+                        if (mMainAdapter != null) {
+                            mMainAdapter.addStory(stories);
+                            mDaysBefore++;
+                        }
+                    }
+                });
+    }
+
     private void gotoContent(long id) {
         ContentViewerActivity.actionStart(this, id);
     }
 
     private RecyclerView.OnScrollListener getOnScrollListener() {
-        return new RecyclerView.OnScrollListener() {
+        return new EndlessOnScrollListener(mLayoutManager) {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
@@ -90,8 +142,8 @@ public class MainActivity extends BaseActivity {
             }
 
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
+            public void onLoadMore() {
+                loadBefore(mDaysBefore);
             }
         };
     }

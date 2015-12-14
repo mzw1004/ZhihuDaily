@@ -77,6 +77,11 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
         return mStoryList.get(position);
     }
 
+    public void addStory(List<Story> stories) {
+        mStoryList.addAll(stories);
+        notifyItemRangeChanged(getItemCount(), stories.size());
+    }
+
     public class MainViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
         ImageView imageView;
