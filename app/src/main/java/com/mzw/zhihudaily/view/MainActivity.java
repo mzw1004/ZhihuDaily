@@ -15,8 +15,10 @@ import com.mzw.zhihudaily.util.DateHelper;
 import com.mzw.zhihudaily.util.L;
 import com.mzw.zhihudaily.view.adapter.MainAdapter;
 import com.mzw.zhihudaily.view.base.BaseActivity;
+import com.mzw.zhihudaily.view.custom.DividerItemDecoration;
 import com.mzw.zhihudaily.view.custom.EndlessOnScrollListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
@@ -35,9 +37,8 @@ public class MainActivity extends BaseActivity {
     RecyclerView mRecyclerView;
 
     private MainAdapter mMainAdapter;
-    private LinearLayoutManager mLayoutManager;
 
-    private int mDaysBefore = 1;
+    private int mDaysBefore = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +47,15 @@ public class MainActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         setSupportActionBar(mToolbar);
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.addOnScrollListener(getOnScrollListener());
+
+        mMainAdapter = new MainAdapter(this, new ArrayList<Story>());
+        mMainAdapter.setOnItemClickListener(getOnItemClickListener());
+        mRecyclerView.setAdapter(mMainAdapter);
+
+        DividerItemDecoration itemDecoration = new DividerItemDecoration(mMainAdapter);
+        mRecyclerView.addItemDecoration(itemDecoration);
 
         loadLatest();
     }
@@ -75,6 +82,8 @@ public class MainActivity extends BaseActivity {
                 .map(new Func1<NewsList, List<Story>>() {
                     @Override
                     public List<Story> call(NewsList newsList) {
+                        L.d(TAG, "Thread: " + Thread.currentThread().getName());
+                        mMainAdapter.addDate(newsList.date);
                         return newsList.stories;
                     }
                 })
@@ -90,9 +99,10 @@ public class MainActivity extends BaseActivity {
 
                     @Override
                     public void onNext(List<Story> stories) {
-                        mMainAdapter = new MainAdapter(stories);
-                        mMainAdapter.setOnItemClickListener(getOnItemClickListener());
-                        mRecyclerView.setAdapter(mMainAdapter);
+                        if (mMainAdapter != null) {
+                            mMainAdapter.updateStory(stories);
+                        }
+                        mDaysBefore = 0;
                     }
                 });
     }
@@ -103,6 +113,7 @@ public class MainActivity extends BaseActivity {
                 .map(new Func1<NewsList, List<Story>>() {
                     @Override
                     public List<Story> call(NewsList newsList) {
+                        mMainAdapter.addDate(newsList.date);
                         return newsList.stories;
                     }
                 })
@@ -131,7 +142,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private RecyclerView.OnScrollListener getOnScrollListener() {
-        return new EndlessOnScrollListener(mLayoutManager) {
+        return new EndlessOnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {

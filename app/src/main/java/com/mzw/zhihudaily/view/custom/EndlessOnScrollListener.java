@@ -17,19 +17,15 @@ public abstract class EndlessOnScrollListener extends RecyclerView.OnScrollListe
     private boolean loading = true; // True if we are still waiting for the last set of data to load.
     int firstVisibleItem, visibleItemCount, totalItemCount;
 
-    private LinearLayoutManager mLinearLayoutManager;
-
-    public EndlessOnScrollListener(LinearLayoutManager linearLayoutManager) {
-        this.mLinearLayoutManager = linearLayoutManager;
-    }
-
     @Override
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         super.onScrolled(recyclerView, dx, dy);
 
+        final LinearLayoutManager linearLayoutManager =
+                (LinearLayoutManager) recyclerView.getLayoutManager();
         visibleItemCount = recyclerView.getChildCount();
-        totalItemCount = mLinearLayoutManager.getItemCount();
-        firstVisibleItem = mLinearLayoutManager.findFirstVisibleItemPosition();
+        totalItemCount = linearLayoutManager.getItemCount();
+        firstVisibleItem = linearLayoutManager.findFirstVisibleItemPosition();
 
         if (loading) {
             if (totalItemCount > previousTotal) {
