@@ -1,18 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
     <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <include layout="@layout/include_toolbar" />
     </android.support.design.widget.AppBarLayout>
 
-    <WebView
+    <com.mzw.zhihudaily.view.custom.ObservableWebView
         android:id="@+id/web_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-</LinearLayout>
+        android:layout_height="match_parent"
+        android:layout_below="@+id/appbar_layout" />
+
+    <RelativeLayout
+        android:id="@+id/rl_content_header"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_below="@+id/appbar_layout">
+
+        <ImageView
+            android:id="@+id/iv_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
+
+        <TextView
+            android:id="@+id/tv_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:padding="@dimen/padding_4dp"
+            android:layout_marginLeft="@dimen/margin_8dp"
+            android:textColor="@color/white"
+            android:textSize="@dimen/font_20sp" />
+    </RelativeLayout>
+</RelativeLayout>

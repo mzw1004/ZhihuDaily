@@ -85,8 +85,6 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public List<Story> call(NewsList newsList) {
                         L.d(TAG, "Thread: " + Thread.currentThread().getName());
-                        String date = newsList.date;
-                        mMainAdapter.addDate(date.substring(0, 4) + "-" + date.substring(4, 6) + "-" + date.substring(6, 8));
                         return newsList.stories;
                     }
                 })

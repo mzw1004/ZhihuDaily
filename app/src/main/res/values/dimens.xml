@@ -8,4 +8,5 @@
     <dimen name="margin_8dp">4dp</dimen>
     <dimen name="font_12sp">12sp</dimen>
     <dimen name="font_16sp">16sp</dimen>
+    <dimen name="font_20sp">20sp</dimen>
 </resources>
