@@ -92,7 +92,7 @@ public class ContentViewerActivity extends BaseActivity {
         return new ObservableWebView.OnScrollChangeListener() {
             @Override
             public void onScrollChange(WebView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                L.d(TAG, "WebView onScroll: " + scrollX + " " + scrollY);
+//                L.d(TAG, "WebView onScroll: " + scrollX + " " + scrollY);
                 mHeaderView.scrollTo(0, scrollY);
             }
         };
