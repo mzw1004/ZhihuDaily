@@ -1,6 +1,5 @@
 package com.mzw.zhihudaily.view.adapter;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -28,11 +27,9 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
 
     private ArrayList<Story> mStoryList;
     private SparseArray<String> mHeaderMap = new SparseArray<>();
-    private Context mContext;
     private boolean mViewIdle = true;
 
-    public MainAdapter(Context context, List<Story> stories) {
-        mContext = context;
+    public MainAdapter(List<Story> stories) {
         mStoryList = new ArrayList<>(stories);
     }
 

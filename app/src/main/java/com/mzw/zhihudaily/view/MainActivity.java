@@ -1,6 +1,7 @@
 package com.mzw.zhihudaily.view;
 
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -49,8 +50,9 @@ public class MainActivity extends BaseActivity {
         setSupportActionBar(mToolbar);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.addOnScrollListener(getOnScrollListener());
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        mMainAdapter = new MainAdapter(this, new ArrayList<Story>());
+        mMainAdapter = new MainAdapter(new ArrayList<Story>());
         mMainAdapter.setOnItemClickListener(getOnItemClickListener());
         mRecyclerView.setAdapter(mMainAdapter);
 

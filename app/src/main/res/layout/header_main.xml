@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
     android:orientation="vertical">
 
     <TextView
@@ -11,9 +10,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:paddingBottom="4dp"
-        android:paddingTop="4dp"
+        android:paddingBottom="@dimen/padding_4dp"
+        android:paddingTop="@dimen/padding_4dp"
         android:textColor="@color/grey"
-        android:textSize="16sp"
+        android:textSize="@dimen/font_12sp"
         tools:text="2015-12-20" />
 </LinearLayout>
